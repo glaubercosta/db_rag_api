@@ -1,4 +1,6 @@
-"""Unit tests for database scanner functionality."""
+"""Unit tests for database sca    def test_private_sanitize_table_name_invalid_empty(self, in_memory_database):
+        """Test private sanitization method with empty table name."""
+        scanner = DatabaseScanner(in_memory_database.config) functionality."""
 
 import pytest
 import pandas as pd
@@ -13,8 +15,7 @@ class TestDatabaseScanner:
 
     def test_get_table_names(self, in_memory_database):
         """Test getting list of table names."""
-        config, engine = in_memory_database
-        scanner = DatabaseScanner(config)
+        scanner = DatabaseScanner(in_memory_database.config)
         
         table_names = scanner.get_table_names()
         assert isinstance(table_names, list)
@@ -23,8 +24,7 @@ class TestDatabaseScanner:
 
     def test_private_sanitize_table_name_valid(self, in_memory_database):
         """Test private sanitization method with valid table names."""
-        config, engine = in_memory_database
-        scanner = DatabaseScanner(config)
+        scanner = DatabaseScanner(in_memory_database.config)
         
         # Test with existing table
         result = scanner._sanitize_table_name("users")

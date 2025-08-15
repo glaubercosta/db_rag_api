@@ -8,10 +8,13 @@ from unittest.mock import Mock, patch
 from sqlalchemy import create_engine, text, inspect
 from sqlalchemy.pool import StaticPool
 
-# Add the project root to Python path
+# Add the project root and src to Python path
 project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+src_path = os.path.join(project_root, 'src')
 if project_root not in sys.path:
     sys.path.insert(0, project_root)
+if src_path not in sys.path:
+    sys.path.insert(0, src_path)
 
 # Import after path setup
 try:
@@ -21,6 +24,7 @@ except ImportError as e:
     print(f"Import error: {e}")
     print(f"Python path: {sys.path}")
     print(f"Project root: {project_root}")
+    print(f"Source path: {src_path}")
     raise
 
 
