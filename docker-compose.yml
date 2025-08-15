@@ -1,0 +1,90 @@
+services:
+  # Aplicação principal
+  db_rag:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: db_rag_app
+    volumes:
+      - .:/app
+      - vector_store_data:/app/vector_store
+    environment:
+      - PYTHONPATH=/app
+    # Carrega variáveis não sensíveis de .env (remova OPENAI_API_KEY deste arquivo)
+    env_file:
+      - .env
+    depends_on:
+      postgres:
+        condition: service_healthy
+      mysql:
+        condition: service_healthy
+    networks:
+      - db_rag_network
+    # Usa secret para a chave OpenAI; entrypoint exporta OPENAI_API_KEY
+    secrets:
+      - openai_api_key
+
+  # PostgreSQL para testes
+  postgres:
+    image: postgres:15-alpine
+    container_name: db_rag_postgres
+    environment:
+      POSTGRES_DB: test_db
+      POSTGRES_USER: test_user
+      POSTGRES_PASSWORD: test_password
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./docker/init-postgres.sql:/docker-entrypoint-initdb.d/init.sql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U test_user -d test_db"]
+      interval: 5s
+      timeout: 3s
+      retries: 12
+    networks:
+      - db_rag_network
+
+  # MySQL para testes
+  mysql:
+    image: mysql:8.0
+    container_name: db_rag_mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: root_password
+      MYSQL_DATABASE: test_db
+      MYSQL_USER: test_user
+      MYSQL_PASSWORD: test_password
+    ports:
+      - "3307:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./docker/init-mysql.sql:/docker-entrypoint-initdb.d/init.sql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 5s
+      timeout: 5s
+      retries: 12
+    networks:
+      - db_rag_network
+
+  # Adminer para gerenciamento de BD (opcional)
+  adminer:
+    image: adminer
+    container_name: db_rag_adminer
+    ports:
+      - "8081:8080"
+    networks:
+      - db_rag_network
+
+volumes:
+  postgres_data:
+  mysql_data:
+  vector_store_data:
+
+networks:
+  db_rag_network:
+    driver: bridge
+
+secrets:
+  openai_api_key:
+    file: ./secrets/openai_api_key.txt

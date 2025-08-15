@@ -1,0 +1,51 @@
+# Multi-stage build para otimização
+
+# Stage 1: Build dependencies
+FROM python:3.11-slim-bullseye AS builder
+
+# Instalar dependências de compilação
+RUN apt-get update && apt-get install -y \
+    gcc g++ make \
+    libblas-dev liblapack-dev gfortran \
+    && rm -rf /var/lib/apt/lists/*
+
+# Configurar pip
+ENV PIP_NO_CACHE_DIR=1 PIP_DISABLE_PIP_VERSION_CHECK=1
+
+# Instalar dependências Python em diretório isolado
+COPY requirements.txt /tmp/
+RUN pip install --user --no-warn-script-location -r /tmp/requirements.txt
+
+# Stage 2: Production image
+FROM python:3.11-slim-bullseye AS production
+
+# Configurar ambiente
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1 \
+    PYTHONPATH=/app \
+    PATH="/home/appuser/.local/bin:$PATH"
+
+# Instalar apenas libs runtime necessárias
+RUN apt-get update && apt-get install -y \
+    libgomp1 \
+    && rm -rf /var/lib/apt/lists/* \
+    && apt-get clean
+
+# Criar usuário não-root
+RUN useradd --create-home --shell /bin/bash appuser
+
+# Copiar dependências do stage builder
+COPY --from=builder /root/.local /home/appuser/.local
+
+# Configurar diretório e permissões
+WORKDIR /app
+RUN chown appuser:appuser /app
+
+# Mudar para usuário não-root
+USER appuser
+
+# Copiar código fonte
+COPY --chown=appuser:appuser . .
+
+# Comando padrão
+CMD ["python", "examples.py"]

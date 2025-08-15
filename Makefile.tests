@@ -1,0 +1,75 @@
+# Test Runner Scripts
+
+# Install test dependencies
+install-test-deps:
+	pip install pytest pytest-cov pytest-xdist pytest-mock coverage
+
+# Run all tests
+test:
+	pytest tests/ -v
+
+# Run only unit tests
+test-unit:
+	pytest tests/unit/ -v -m unit
+
+# Run only integration tests
+test-integration:
+	pytest tests/integration/ -v -m integration
+
+# Run only security tests
+test-security:
+	pytest tests/security/ -v -m security
+
+# Run only performance tests (slow)
+test-performance:
+	pytest tests/performance/ -v -m "performance and slow"
+
+# Run fast tests only (exclude slow tests)
+test-fast:
+	pytest tests/ -v -m "not slow"
+
+# Run tests with coverage
+test-coverage:
+	pytest tests/ --cov=. --cov-report=html --cov-report=term-missing
+
+# Run tests in parallel
+test-parallel:
+	pytest tests/ -v -n auto
+
+# Run specific test file
+test-file:
+	pytest $(FILE) -v
+
+# Run tests matching pattern
+test-pattern:
+	pytest tests/ -v -k $(PATTERN)
+
+# Run tests that require OpenAI (with API key)
+test-openai:
+	pytest tests/ -v -m requires_openai
+
+# Run tests that require database
+test-database:
+	pytest tests/ -v -m requires_database
+
+# Clean test artifacts
+clean-test:
+	rm -rf .pytest_cache/
+	rm -rf htmlcov/
+	rm -f .coverage
+	find . -name "*.pyc" -delete
+	find . -name "__pycache__" -type d -exec rm -rf {} +
+
+# Generate test report
+test-report:
+	pytest tests/ --html=test_report.html --self-contained-html
+
+# Run linting on tests
+lint-tests:
+	flake8 tests/
+	mypy tests/ --ignore-missing-imports
+
+# All quality checks
+quality-check: lint-tests test-coverage
+
+.PHONY: install-test-deps test test-unit test-integration test-security test-performance test-fast test-coverage test-parallel test-file test-pattern test-openai test-database clean-test test-report lint-tests quality-check

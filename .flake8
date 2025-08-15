@@ -1,0 +1,10 @@
+[flake8]
+# Desabilitar linting para o projeto
+# Ignora todos os tipos de erro mais comuns
+ignore = E501,W293,W291,F401,F841,E128,E302,E305,E402,E261,F541,E226,W503
+
+# Diretórios para excluir
+exclude = venv,__pycache__,.git,.pytest_cache,*.egg-info
+
+# Tamanho máximo de linha (opcional - pode aumentar se quiser)
+max-line-length = 120

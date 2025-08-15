@@ -1,0 +1,13 @@
+# Inclui dependências de produção
+-r requirements.txt
+
+# Ferramentas de desenvolvimento
+pytest>=7.0.0
+pytest-cov>=4.0.0
+pytest-mock>=3.10.0
+black>=23.0.0
+flake8>=6.0.0
+mypy>=1.0.0
+
+# Para compatibilidade com Windows
+colorama>=0.4.0

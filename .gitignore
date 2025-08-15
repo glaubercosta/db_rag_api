@@ -1,0 +1,223 @@
+# Arquivos compilados / otimizados / DLL do Python
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Extensões C
+*.so
+
+# Distribuição / empacotamento
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# PyInstaller
+#  Geralmente estes arquivos são escritos por um script python a partir de um template
+#  antes do PyInstaller construir o exe, para injetar data/outras informações nele.
+*.manifest
+*.spec
+
+# Logs do instalador
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Relatórios de testes unitários / cobertura
+htmlcov/
+.tox/
+.nox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+*.py,cover
+.hypothesis/
+.pytest_cache/
+cover/
+
+# Traduções
+*.mo
+*.pot
+
+# Arquivos do Django:
+*.log
+local_settings.py
+db.sqlite3
+db.sqlite3-journal
+
+# Arquivos do Flask
+instance/
+.webassets-cache
+
+# Arquivos do Scrapy
+.scrapy
+
+# Documentação Sphinx
+docs/_build/
+
+# PyBuilder
+.pybuilder/
+target/
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# IPython
+profile_default/
+ipython_config.py
+
+# pyenv
+#   Para uma biblioteca ou pacote, você pode querer ignorar estes arquivos já que o código é
+#   destinado a rodar em múltiplos ambientes; caso contrário, versione-os:
+# .python-version
+
+# pipenv
+#   De acordo com pypa/pipenv#598, é recomendado incluir Pipfile.lock no controle de versão.
+#   No entanto, em caso de colaboração, se tendo dependências específicas de plataforma ou dependências
+#   sem suporte multiplataforma, pipenv pode instalar dependências que não funcionam, ou não
+#   instalar todas as dependências necessárias.
+#Pipfile.lock
+
+# poetry
+#   Similar ao Pipfile.lock, é geralmente recomendado incluir poetry.lock no controle de versão.
+#   Isso é especialmente recomendado para pacotes binários para garantir reprodutibilidade, e é mais
+#   comumente ignorado para bibliotecas.
+#   https://python-poetry.org/docs/basic-usage/#commit-your-poetrylock-file-to-version-control
+#poetry.lock
+
+# pdm
+#   Similar ao Pipfile.lock, é geralmente recomendado incluir pdm.lock no controle de versão.
+#pdm.lock
+#   pdm armazena configurações de todo o projeto em .pdm.toml, mas é recomendado não incluí-lo
+#   no controle de versão.
+#   https://pdm.fming.dev/#use-with-ide
+.pdm.toml
+
+# PEP 582; usado por ex. github.com/David-OConnor/pyflow e github.com/pdm-project/pdm
+__pypackages__/
+
+# Arquivos do Celery
+celerybeat-schedule
+celerybeat.pid
+
+# Arquivos analisados do SageMath
+*.sage.py
+
+# Ambientes virtuais
+.env
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# Configurações de projeto do Spyder
+.spyderproject
+.spyproject
+
+# Configurações de projeto do Rope
+.ropeproject
+
+# Documentação mkdocs
+/site
+
+# mypy
+.mypy_cache/
+.dmypy.json
+dmypy.json
+
+# Verificador de tipos Pyre
+.pyre/
+
+# Analisador de tipos estáticos pytype
+.pytype/
+
+# Símbolos de debug do Cython
+cython_debug/
+
+# PyCharm
+#  Template específico da JetBrains é mantido em um JetBrains.gitignore separado que pode
+#  ser adicionado ao gitignore global ou mesclado neste gitignore do projeto. Para um projeto
+#  PyCharm, o seguinte seria adicionado:
+.idea/
+
+# Visual Studio Code
+.vscode/
+
+# Arquivos de banco de dados
+*.db
+*.sqlite
+*.sqlite3
+
+# Arquivos de armazenamento vetorial (FAISS)
+*.index
+*.pkl
+*.pickle
+faiss_index/
+vector_store/
+embeddings/
+
+# Cache do LangChain
+.langchain/
+
+# Logs
+*.log
+logs/
+
+# Arquivos temporários
+*.tmp
+*.temp
+temp/
+
+# Arquivos gerados pelo sistema operacional
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Windows
+Desktop.ini
+
+# Arquivos de backup
+*.bak
+*.backup
+*~
+
+# Arquivos de configuração com dados sensíveis
+config_local.py
+secrets.py
+*.secret
+secrets/
+!secrets/.gitkeep
+
+# Saídas de teste
+test_outputs/
+test_results/
+
+# Docker environment file
+env.docker
+# Additional docker env variants
+env.docker.local
+docker.env
+*.docker.env
+.env.docker
