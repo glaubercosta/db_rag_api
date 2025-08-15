@@ -123,8 +123,8 @@ def main():
         if use_docker:
             print("📋 Para usar Docker:")
             print("1. Edite .env com sua chave OpenAI")
-            print("2. Execute: python docker_helper.py up")
-            print("3. Execute: python docker_helper.py logs")
+            print("2. Execute: python docker/docker_helper.py up")
+            print("3. Execute: python docker/docker_helper.py logs")
         else:
             print("📋 Para desenvolvimento local:")
             print("1. Copie .env.example para .env e configure")

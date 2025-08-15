@@ -30,9 +30,13 @@ venv\Scripts\activate  # Windows
 # Instalar dependencias
 pip install -r requirements.txt
 
-# Executar exemplos
+# Executar exemplo principal
 python app.py
-`
+
+# Ou executar exemplos específicos
+python examples/basic_usage.py
+python examples/rag_system_example.py
+```
 
 ## Requisitos
 
@@ -44,14 +48,17 @@ python app.py
 
 ### 1. Configuracao Inicial
 
-`python
-from src.config import RAGConfig
-from src.rag_system import RAGSystem
+```python
+from src.config import DatabaseConfig, OpenAIConfig, RAGConfig
+from src.rag_system import DatabaseRAGSystem
 
 # Configurar sistema
-config = RAGConfig()
-rag = RAGSystem(config)
-`
+db_config = DatabaseConfig.from_env()
+openai_config = OpenAIConfig.from_env()
+rag_config = RAGConfig.from_env()
+
+rag = DatabaseRAGSystem(db_config, openai_config, rag_config)
+```
 
 ### 2. Fazer Consultas
 
@@ -122,6 +129,43 @@ python test_system.py
 - Sanitizacao de queries
 - Controle de acesso por tabela
 - Logs de auditoria
+
+## 📁 Estrutura do Projeto
+
+```
+db_rag_api/
+├── src/                 # Código principal
+├── examples/            # Exemplos e demonstrações
+├── utils/               # Utilitários e ferramentas
+├── scripts/             # Scripts de automação
+├── tests/               # Testes automatizados
+│   ├── fixtures/        # Dados de teste
+│   ├── unit/            # Testes unitários
+│   ├── integration/     # Testes de integração
+│   └── legacy/          # Testes legados
+├── docs/                # Documentação
+├── api.py               # API FastAPI
+└── app.py               # Interface CLI
+```
+
+### Scripts Úteis
+
+- `python scripts/setup_dev.py` - Setup do ambiente de desenvolvimento
+- `python utils/check_data.py` - Verificar dados do banco
+- `python tests/fixtures/create_test_data.py` - Criar dados de teste
+
+## 📋 Diretrizes de Organização
+
+### Documentação
+- **✅ `docs/`**: Toda documentação técnica, análises e relatórios
+- **❌ Raiz**: Evitar arquivos de documentação na raiz do projeto
+- **📊 `docs/analysis/`**: Relatórios de análise e auditorias
+- **📝 `docs/changelogs/`**: Histórico de mudanças
+
+### Estrutura Limpa
+- Manter a raiz com apenas arquivos essenciais do projeto
+- Organizar arquivos por função em diretórios apropriados
+- Documentar a estrutura em READMEs específicos
 
 ## Licenca
 

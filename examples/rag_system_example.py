@@ -3,6 +3,9 @@ RAG System for Databases - Main entry point
 This file was refactored; functionality lives in modular files.
 Use rag_system.py or examples.py for usage examples.
 """
+import sys
+import os
+sys.path.append(os.path.join(os.path.dirname(__file__), '..', 'src'))
 
 from rag_system import create_system_from_env
 

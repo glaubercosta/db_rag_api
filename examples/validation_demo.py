@@ -2,6 +2,10 @@
 """
 Demonstração das validações da RAGConfig
 """
+import sys
+import os
+sys.path.append(os.path.join(os.path.dirname(__file__), '..', 'src'))
+
 from config import RAGConfig
 
 def demonstrate_validations():

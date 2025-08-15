@@ -39,7 +39,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY . .
 
 # Copiar entrypoint e dar permissão de execução
-RUN chmod +x /app/docker_entrypoint.sh
+RUN chmod +x /app/docker/docker_entrypoint.sh
 
 # Ajustar ownership para appuser após preparar arquivos
 RUN chown -R appuser:appuser /app
@@ -50,4 +50,4 @@ USER appuser
 # Expor porta (se necessário para APIs futuras)
 EXPOSE 8000
 
-ENTRYPOINT ["/app/docker_entrypoint.sh"]
+ENTRYPOINT ["/app/docker/docker_entrypoint.sh"]

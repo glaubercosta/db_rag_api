@@ -1,11 +1,12 @@
 """
-SQL Agent for natural language query processing
+SQL Agent for natural language query processing with multiple LLM support
 """
-from typing import Optional
+from typing import Optional, Union
 from langchain_community.utilities import SQLDatabase
 from langchain_community.agent_toolkits import SQLDatabaseToolkit
 from langchain_openai import ChatOpenAI
 from langchain_community.agent_toolkits.sql.base import create_sql_agent
+from langchain_core.language_models.base import BaseLanguageModel
 
 from config import OpenAIConfig
 from database_scanner import DatabaseScanner
@@ -13,9 +14,10 @@ from vector_store_manager import VectorStoreManager
 
 
 class SQLAgent:
-    """Processes natural language SQL queries using an LLM"""
+    """Processes natural language SQL queries using any LLM"""
 
     def __init__(self, config: OpenAIConfig, scanner: DatabaseScanner):
+        """Initialize SQL Agent with OpenAI config (legacy compatibility)"""
         self.config = config
         self.scanner = scanner
         self.db = SQLDatabase(scanner.engine)
@@ -29,6 +31,27 @@ class SQLAgent:
             verbose=True,
             handle_parsing_errors=True,
         )
+    
+    @classmethod
+    def from_langchain_llm(cls, llm: BaseLanguageModel, scanner: DatabaseScanner):
+        """Create SQL Agent from any LangChain-compatible LLM"""
+        # Create a new instance without going through __init__
+        instance = cls.__new__(cls)
+        
+        # Set attributes directly
+        instance.config = None  # No specific config for multi-LLM
+        instance.scanner = scanner
+        instance.db = SQLDatabase(scanner.engine)
+        instance.llm = llm
+        instance.toolkit = SQLDatabaseToolkit(db=instance.db, llm=llm)
+        instance.agent = create_sql_agent(
+            llm=llm,
+            toolkit=instance.toolkit,
+            verbose=True,
+            handle_parsing_errors=True,
+        )
+        
+        return instance
 
     def query(self, question: str, context: Optional[str] = None) -> str:
         """Execute a natural language query (optionally with context)"""

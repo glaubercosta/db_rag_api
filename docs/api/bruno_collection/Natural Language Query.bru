@@ -1,0 +1,24 @@
+meta {
+  name: Natural Language Query
+  type: http
+  seq: 3
+}
+
+post {
+  url: {{base_url}}/query
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{api_key}}
+}
+
+body:json {
+  {
+    "query": "What are the top 5 customers by revenue?",
+    "query_type": "natural_language",
+    "limit": 10,
+    "include_explanation": true
+  }
+}

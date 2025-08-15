@@ -6,6 +6,10 @@ Ponto de entrada principal da aplicacao
 
 import sys
 import os
+from dotenv import load_dotenv
+
+# Carregar variáveis de ambiente do arquivo .env
+load_dotenv()
 
 # Adicionar src ao path
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), 'src'))
@@ -15,17 +19,20 @@ def main():
     print("Iniciando DB RAG API...")
     
     try:
-        from src.rag_system import RAGSystem
-        from src.config import RAGConfig
+        from src.rag_system import DatabaseRAGSystem
+        from src.config import DatabaseConfig, OpenAIConfig, RAGConfig
         
-        # Configurar sistema
-        config = RAGConfig()
-        rag = RAGSystem(config)
+        # Configurar sistema com todas as configurações necessárias
+        db_config = DatabaseConfig.from_env()
+        openai_config = OpenAIConfig.from_env()
+        rag_config = RAGConfig.from_env()
+        
+        rag = DatabaseRAGSystem(db_config, openai_config, rag_config)
         
         print("\nSistema RAG inicializado com sucesso!")
         print("Para usar o sistema, importe as classes necessarias:")
-        print("   from src.rag_system import RAGSystem")
-        print("   from src.config import RAGConfig")
+        print("   from src.rag_system import DatabaseRAGSystem")
+        print("   from src.config import DatabaseConfig, OpenAIConfig, RAGConfig")
         
         return rag
         

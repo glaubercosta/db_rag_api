@@ -1,0 +1,15 @@
+meta {
+  name: DB RAG API
+  type: http
+  seq: 1
+}
+
+vars {
+  base_url: http://localhost:9000
+  api_key: dev-api-key-12345
+}
+
+headers {
+  Authorization: Bearer {{api_key}}
+  Content-Type: application/json
+}
