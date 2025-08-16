@@ -85,32 +85,49 @@ class MultiLLMDatabaseRAGSystem:
             
             # Scan database
             print("📊 Scanning database schema and data...")
-            schema_info = self.scanner.get_full_schema()
+            schema_info = self.scanner.scan_database()
             
             # Initialize vector store
             print("🔍 Setting up vector store...")
-            if force_rebuild or not self.vector_store_manager.load_vector_store():
+            vector_store_path = self.rag_config.vector_store_path
+            vector_store_loaded = False
+            
+            # Try to load existing vector store if not forcing rebuild
+            if not force_rebuild and os.path.exists(vector_store_path):
+                try:
+                    print("📂 Loading existing vector store...")
+                    self.vector_store_manager.load_vector_store(vector_store_path, langchain_embeddings)
+                    vector_store_loaded = True
+                    print("✅ Vector store loaded successfully!")
+                except Exception as e:
+                    print(f"⚠️ Failed to load existing vector store: {e}")
+                    print("🔄 Will rebuild vector store...")
+            
+            # Build vector store if not loaded
+            if not vector_store_loaded:
                 print("🔄 Building vector store from database schema...")
                 texts, metadatas = self._prepare_vectorization_data(schema_info)
                 
-                # Use the active embedding provider
-                if not self.vector_store_manager.create_vector_store(
-                    texts, metadatas, langchain_embeddings
-                ):
-                    print("❌ Failed to create vector store")
-                    return False
+                # Convert texts and metadatas to Document objects
+                from langchain.schema import Document
+                documents = [
+                    Document(page_content=text, metadata=metadata)
+                    for text, metadata in zip(texts, metadatas)
+                ]
                 
-                # Save vector store
-                if not self.vector_store_manager.save_vector_store():
-                    print("⚠️ Warning: Failed to save vector store to disk")
+                # Use the active embedding provider
+                self.vector_store_manager._vector_store = self.vector_store_manager.build_vector_store(
+                    documents, langchain_embeddings
+                )
+                print("✅ Vector store built and saved successfully!")
             else:
                 print("✅ Loaded existing vector store")
                 # Update the embeddings in the loaded vector store
-                self.vector_store_manager.vector_store._embedding = langchain_embeddings
+                self.vector_store_manager._vector_store._embedding = langchain_embeddings
 
             # Initialize query processor
             self.query_processor = RAGQueryProcessor(
-                self.vector_store_manager.vector_store,
+                self.vector_store_manager._vector_store,
                 self.sql_agent,
                 self.rag_config
             )
@@ -129,46 +146,51 @@ class MultiLLMDatabaseRAGSystem:
         texts = []
         metadatas = []
 
-        for table_name, table_info in schema_info.items():
+        # schema_info is now a DatabaseSchema object
+        for table in schema_info.tables:
             # Table schema text
-            schema_text = f"Table: {table_name}\n"
-            schema_text += f"Description: Database table {table_name}\n"
+            schema_text = f"Table: {table.name}\n"
+            schema_text += f"Description: Database table {table.name}\n"
             schema_text += "Columns:\n"
             
-            for col in table_info.get('columns', []):
-                schema_text += f"- {col['name']} ({col['type']})"
-                if col.get('nullable', True):
+            for col in table.columns:
+                schema_text += f"- {col.name} ({col.data_type})"
+                if col.is_nullable:
                     schema_text += " [nullable]"
-                if col.get('primary_key', False):
+                if col.name in table.primary_keys:
                     schema_text += " [primary key]"
                 schema_text += "\n"
             
             # Add foreign keys if any
-            if table_info.get('foreign_keys'):
+            if table.foreign_keys:
                 schema_text += "Foreign Keys:\n"
-                for fk in table_info['foreign_keys']:
-                    schema_text += f"- {fk['column']} references {fk['referenced_table']}.{fk['referenced_column']}\n"
+                for fk in table.foreign_keys:
+                    schema_text += f"- {fk.column} references {fk.references_table}.{fk.references_column}\n"
             
-            # Add sample data if available
-            if table_info.get('sample_data'):
-                schema_text += f"\nSample data (first few rows):\n"
-                sample_data = table_info['sample_data']
+            # Try to get sample data
+            try:
+                sample_data = self.scanner.query_table_sample(table.name, limit=5)
                 if sample_data:
+                    schema_text += f"\nSample data (first few rows):\n"
                     # Add header
                     headers = list(sample_data[0].keys()) if sample_data else []
-                    schema_text += " | ".join(headers) + "\n"
-                    schema_text += "-" * len(" | ".join(headers)) + "\n"
-                    
-                    # Add sample rows
-                    for row in sample_data[:3]:  # Limit to first 3 rows
-                        values = [str(row.get(h, '')) for h in headers]
-                        schema_text += " | ".join(values) + "\n"
+                    if headers:
+                        schema_text += " | ".join(str(h) for h in headers) + "\n"
+                        schema_text += "-" * len(" | ".join(str(h) for h in headers)) + "\n"
+                        
+                        # Add sample rows
+                        for row in sample_data[:3]:  # Limit to first 3 rows
+                            values = [str(row.get(h, '')) for h in headers]
+                            schema_text += " | ".join(values) + "\n"
+            except Exception as e:
+                # If sample data fails, continue without it
+                print(f"⚠️ Could not get sample data for {table.name}: {e}")
             
             texts.append(schema_text)
             metadatas.append({
-                'table_name': table_name,
+                'table_name': table.name,
                 'type': 'table_schema',
-                'row_count': table_info.get('row_count', 0)
+                'row_count': 0  # Could get actual row count if needed
             })
 
         return texts, metadatas
@@ -201,7 +223,7 @@ class MultiLLMDatabaseRAGSystem:
         
         print("\n📊 DATABASE:")
         print(f"  📋 Tables scanned: {len(self.scanner.get_table_names()) if hasattr(self.scanner, 'get_table_names') else 'N/A'}")
-        print(f"  🔍 Vector store: {'Ready' if self.vector_store_manager.vector_store else 'Not loaded'}")
+        print(f"  🔍 Vector store: {'Ready' if self.vector_store_manager._vector_store else 'Not loaded'}")
         
         print("="*60 + "\n")
 
@@ -272,8 +294,8 @@ class MultiLLMDatabaseRAGSystem:
             # Update vector store with new embeddings
             try:
                 langchain_embeddings = self.provider_manager.get_langchain_embeddings()
-                if self.vector_store_manager.vector_store:
-                    self.vector_store_manager.vector_store._embedding = langchain_embeddings
+                if self.vector_store_manager._vector_store:
+                    self.vector_store_manager._vector_store._embedding = langchain_embeddings
                 print(f"✅ Switched to {provider_name} and updated vector store")
             except Exception as e:
                 print(f"⚠️ Switched provider but failed to update vector store: {e}")

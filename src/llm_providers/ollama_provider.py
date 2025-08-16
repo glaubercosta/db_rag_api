@@ -22,9 +22,19 @@ from . import (
 class OllamaProvider(BaseLLMProvider):
     """Ollama local models provider"""
     
-    def __init__(self, config: LLMConfig):
-        super().__init__(config)
-        self.base_url = config.api_base or "http://localhost:11434"
+    def __init__(self, config):
+        # Aceitar tanto LLMConfig quanto OllamaConfig
+        if hasattr(config, 'base_url'):
+            # OllamaConfig
+            self.config = config
+            self.base_url = config.base_url
+            self.model = config.model_name  # Corrigido para model_name
+        else:
+            # LLMConfig
+            super().__init__(config)
+            self.base_url = config.api_base or "http://localhost:11434"
+            self.model = config.model_name
+        
         self.langchain_llm = None
         
     def initialize(self) -> None:

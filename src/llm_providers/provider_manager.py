@@ -4,6 +4,10 @@ LLM Provider Manager for coordinating multiple LLM providers
 import os
 from typing import Dict, List, Optional, Any, Union
 from dataclasses import dataclass
+from dotenv import load_dotenv
+
+# Carregar variáveis do arquivo .env
+load_dotenv()
 
 from . import (
     LLMProvider, 

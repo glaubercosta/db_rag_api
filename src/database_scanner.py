@@ -15,7 +15,15 @@ class DatabaseScanner:
 
     def __init__(self, config: DatabaseConfig):
         self.config = config
-        self.engine = create_engine(config.url)
+        # Use database_url if available, otherwise construct from database_path and type
+        if config.database_url:
+            db_url = config.database_url
+        elif config.database_type == "sqlite" and config.database_path:
+            db_url = f"sqlite:///{config.database_path}"
+        else:
+            raise ValueError("Database configuration incomplete. Need database_url or database_path")
+        
+        self.engine = create_engine(db_url)
         # Use inspect() instead of deprecated Inspector.from_engine()
         self.inspector = inspect(self.engine)
         self.metadata = MetaData()

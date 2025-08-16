@@ -10,6 +10,10 @@ import os
 from dataclasses import dataclass, field
 from typing import Optional, Dict, Any, List
 from enum import Enum
+from dotenv import load_dotenv
+
+# Carregar variáveis do arquivo .env
+load_dotenv()
 
 
 class LLMProvider(Enum):

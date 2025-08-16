@@ -2,7 +2,7 @@
 ### Use this file with VS Code REST Client extension or similar tools
 
 @base_url = http://localhost:9000
-@api_key = dev-api-key-12345
+@api_key = minha-api-key-AuTHvhpVGq_DHiBkg4wi_l7LxWathUy-pLNsar_K-oc
 
 ### API Information
 GET {{base_url}}/
@@ -10,82 +10,71 @@ GET {{base_url}}/
 ### Health Check
 GET {{base_url}}/health
 
-### Authentication Info
-GET {{base_url}}/auth/info
+### System Status (requires auth)
+GET {{base_url}}/status
+Authorization: Bearer {{api_key}}
 
-### Initialize System
-POST {{base_url}}/initialize
+### List Providers (requires auth)
+GET {{base_url}}/providers
+Authorization: Bearer {{api_key}}
+
+### Switch LLM Provider (requires auth)
+POST {{base_url}}/switch-provider
 Content-Type: application/json
 Authorization: Bearer {{api_key}}
 
 {
-  "force_rebuild": false
+  "provider": "ollama",
+  "type": "llm"
 }
 
-### Natural Language Query - Customer Revenue
+### Switch Embedding Provider (requires auth)
+POST {{base_url}}/switch-provider
+Content-Type: application/json
+Authorization: Bearer {{api_key}}
+
+{
+  "provider": "openai", 
+  "type": "embedding"
+}
+
+### Natural Language Query - Customer Revenue (requires auth)
 POST {{base_url}}/query
 Content-Type: application/json
 Authorization: Bearer {{api_key}}
 
 {
   "query": "What are the top 5 customers by revenue?",
-  "query_type": "natural_language",
-  "limit": 10,
-  "include_explanation": true
+  "provider": "ollama"
 }
 
-### Natural Language Query - Recent Orders
+### Natural Language Query - Product Analysis (requires auth)
 POST {{base_url}}/query
 Content-Type: application/json
 Authorization: Bearer {{api_key}}
 
 {
-  "query": "Show me all orders from the last 30 days",
-  "query_type": "natural_language",
-  "limit": 20,
-  "include_explanation": true
+  "query": "Show me products with low stock levels",
+  "provider": "ollama"
 }
 
-### Direct SQL Query
+### Natural Language Query - Recent Orders (requires auth)
 POST {{base_url}}/query
 Content-Type: application/json
 Authorization: Bearer {{api_key}}
 
 {
-  "query": "SELECT * FROM customers LIMIT 5",
-  "query_type": "sql",
-  "limit": 5,
-  "include_explanation": false
+  "query": "Show me all orders from the last 30 days"
 }
 
-### List All Tables
-GET {{base_url}}/tables
-Authorization: Bearer {{api_key}}
-
-### Get All Schema Information
-POST {{base_url}}/schema
+### Natural Language Query - Database Overview (requires auth)
+POST {{base_url}}/query
 Content-Type: application/json
 Authorization: Bearer {{api_key}}
 
 {
-  "include_sample_data": false,
-  "sample_limit": 3
+  "query": "What tables are available in this database?"
 }
-
-### Get Specific Table Schema with Sample Data
-POST {{base_url}}/schema
-Content-Type: application/json
-Authorization: Bearer {{api_key}}
-
-{
-  "table_name": "customers",
-  "include_sample_data": true,
-  "sample_limit": 3
-}
-
-### Database Statistics
-GET {{base_url}}/stats
-Authorization: Bearer {{api_key}}
 
 ### Error Handling Examples
 
